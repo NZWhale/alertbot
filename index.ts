@@ -5,7 +5,7 @@ import CoinCapBot from "./src/coincapbot";
 const botInit = async () => {
   const geckoBot = await GeckoBot.asyncBuild();
   const coinCapBot = await CoinCapBot.asyncBuild();
-  // geckoBot.startGeckoBot();
+  geckoBot.startGeckoBot();
   coinCapBot.startCoinCapBot();
 };
 

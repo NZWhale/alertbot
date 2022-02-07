@@ -33,7 +33,9 @@ class GeckoBot {
         console.log({
           event: "user",
           status: "done",
-          message: `User registered in Coin Gecko Bot ${JSON.stringify(msg.chat)}`,
+          message: `User registered in Coin Gecko Bot ${JSON.stringify(
+            msg.chat
+          )}`,
         });
         this.bot.sendMessage(chatId, "Зарегался, жди апдейта.");
       });
@@ -71,14 +73,17 @@ class GeckoBot {
   }
 
   private async getNewCoins(): Promise<void | Array<Record<any, any>>> {
-    try{
+    try {
       const updatedCoinsList = await this.getCoinsList();
-      if(!updatedCoinsList){
-        throw new Error('Coins list request from coin gecko failed')
+      if (!updatedCoinsList) {
+        throw new Error("Coins list request from coin gecko failed");
       }
-      const isDifferent = isArrayOfCoinsUpdated(updatedCoinsList, this.coinsList);
+      const isDifferent = isArrayOfCoinsUpdated(
+        updatedCoinsList,
+        this.coinsList
+      );
       if (!isDifferent) {
-        throw new Error('No new coins yet on coin gecko')
+        throw new Error("No new coins yet on coin gecko");
       }
       const newCoins = _.differenceBy(updatedCoinsList, this.coinsList, "id");
       console.log({
@@ -88,7 +93,7 @@ class GeckoBot {
       });
       this.coinsList = updatedCoinsList;
       return newCoins;
-    }catch (e: any) {
+    } catch (e: any) {
       console.error({
         event: "new coins",
         status: "failed",
@@ -137,16 +142,18 @@ class GeckoBot {
 
   private async sendMessage(user: any, coin: any): Promise<void> {
     try {
-      const coinInfo = await this.getCoinInfo(coin.id);
-      if(!coinInfo){
-        throw new Error('info request failed')
-      }
-      const message = `<pre>🦎🦎🦎
-Coin name: ${coinInfo.name}
-Coin link: ${coinInfo.links.homepage}
+      for (let i = 0; i < coin.length; i++) {
+        const coinInfo = await this.getCoinInfo(coin.id);
+        if (!coinInfo) {
+          throw new Error("info request failed");
+        }
+        const message = `<pre>🦎🦎🦎
+Name: ${coinInfo.name}
+Link: <a href=${coinInfo.links.homepage}>${coinInfo.links.homepage}</a>
 </pre>`;
-      await this.bot.sendMessage(user, message, { parse_mode: "HTML" });
-      console.log({ event: "message", status: "done", message });
+        await this.bot.sendMessage(user, message, { parse_mode: "HTML" });
+        console.log({ event: "message", status: "done", message });
+      }
     } catch (e: any) {
       console.error({ event: "message", status: "failed", message: e.message });
       return;

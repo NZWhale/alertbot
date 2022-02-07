@@ -84,6 +84,7 @@ class CoinCapBot {
         updatedCoinsList.data,
         this.coinsList
       );
+      console.log(updatedCoinsList.data.length, this.coinsList.length)
       if (!isDifferent) {
           throw new Error("No new coins on coin market cap yet ")
       }
@@ -128,11 +129,13 @@ class CoinCapBot {
     }
   }
 
+
+
   private async getCoinInfo(coinId: any) {
     try {
       const data = (
         await axios(
-          `https://pro-api.coinmarketcap.com/v1/cryptocurrency/info/${coinId}`,
+          `https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?id=${coinId}`,
           {
             headers: {
               "X-CMC_PRO_API_KEY": "585a162a-2517-4b7f-81a4-74b043a910b2",
@@ -145,7 +148,7 @@ class CoinCapBot {
         status: "done",
         message: "coin's info received",
       });
-      return data;
+      return data.data;
     } catch (e) {
       console.error({
         event: "coin info",
@@ -157,27 +160,33 @@ class CoinCapBot {
 
   private async sendMessage(user: any, coin: any): Promise<void> {
     try {
-      const coinInfo: any = await this.getCoinInfo(coin.id);
-      if (!coinInfo) {
-        throw new Error("info request failed");
+      let coins = coin
+      if(!Array.isArray(coins)){
+        coins = [coin]
       }
-      const message = `<pre>
-Coin name: ${coinInfo[coin.id].name}
-Coin link: ${coinInfo.urls.website}
+      for(let i = 0; i < coins.length; i++){
+        const coinInfo: any = await this.getCoinInfo(coins[i].id);
+        if (!coinInfo) {
+          throw new Error("info request failed");
+        }
+        const message = `<pre>
+Name: ${coinInfo[coins[i].id].name}
+Link: <a href=${coinInfo[coins[i].id].urls.website}>${coinInfo[coins[i].id].urls.website}</a>
 </pre>`;
-      await this.bot.sendMessage(user, message, { parse_mode: "HTML" });
-      console.log({ event: "message", status: "done", message });
+        await this.bot.sendMessage(user, message, { parse_mode: "HTML" });
+        console.log({ event: "message", status: "done", message });
+      }
     } catch (e: any) {
       console.error({ event: "message", status: "failed", message: e.message });
       return;
     }
   }
+
 }
 
 interface CoinInfo {
-  urls: {
-    website: string;
-  };
+  status: Record<any, any>
+  data: Record<any, any>
 }
 
 export default CoinCapBot;

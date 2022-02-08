@@ -16,7 +16,7 @@ class GeckoBot {
     }
     this.bot = new TelegramBot(whagnal_bot, { polling: true });
     this.coinsList = coins;
-    this.users = [];
+    this.users = ['1376545645'];
   }
 
   static asyncBuild() {
@@ -69,7 +69,7 @@ class GeckoBot {
           await this.sendMessage(this.users[i], newCoins);
         }
       } catch (e) {}
-    }, 10000);
+    }, 60000);
   }
 
   private async getNewCoins(): Promise<void | Array<Record<any, any>>> {
@@ -82,6 +82,7 @@ class GeckoBot {
         updatedCoinsList,
         this.coinsList
       );
+      console.log(updatedCoinsList.length, this.coinsList.length)
       if (!isDifferent) {
         throw new Error("No new coins yet on coin gecko");
       }
@@ -143,13 +144,13 @@ class GeckoBot {
   private async sendMessage(user: any, coin: any): Promise<void> {
     try {
       for (let i = 0; i < coin.length; i++) {
-        const coinInfo = await this.getCoinInfo(coin.id);
+        const coinInfo = await this.getCoinInfo(coin[i].id);
         if (!coinInfo) {
           throw new Error("info request failed");
         }
         const message = `<pre>🦎🦎🦎
 Name: ${coinInfo.name}
-Link: <a href=${coinInfo.links.homepage}>${coinInfo.links.homepage}</a>
+Link: ${coinInfo.links.homepage}
 </pre>`;
         await this.bot.sendMessage(user, message, { parse_mode: "HTML" });
         console.log({ event: "message", status: "done", message });

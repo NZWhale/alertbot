@@ -84,7 +84,7 @@ class CoinCapBot {
         updatedCoinsList.data,
         this.coinsList
       );
-      console.log(updatedCoinsList.data.length, this.coinsList.length)
+
       if (!isDifferent) {
           throw new Error("No new coins on coin market cap yet ")
       }
@@ -161,17 +161,25 @@ class CoinCapBot {
   private async sendMessage(user: any, coin: any): Promise<void> {
     try {
       let coins = coin
+
       if(!Array.isArray(coins)){
         coins = [coin]
       }
       for(let i = 0; i < coins.length; i++){
         const coinInfo: any = await this.getCoinInfo(coins[i].id);
+        let name = coinInfo[coins[i].id].name
+            let website = coinInfo[coins[i].id].urls.website
+        if(Array.isArray(website)){
+          website = website.map(el => el + "," + " ")
+        } else {
+          website = website[0]
+        }
         if (!coinInfo) {
           throw new Error("info request failed");
         }
         const message = `<pre>
-Name: ${coinInfo[coins[i].id].name}
-Link: <a href=${coinInfo[coins[i].id].urls.website}>${coinInfo[coins[i].id].urls.website}</a>
+Name: ${name}
+Link: ${website}
 </pre>`;
         await this.bot.sendMessage(user, message, { parse_mode: "HTML" });
         console.log({ event: "message", status: "done", message });

@@ -1,8 +1,8 @@
 import  config from "../config";
-import TelegramBot from "node-telegram-bot-api";
+import TelegramBot = require("node-telegram-bot-api");
+import _ = require("lodash");
 import { isArrayOfCoinsUpdated } from "./utils";
 import "reflect-metadata";
-import _ from "lodash";
 import axios from "axios";
 
 class GeckoBot {
@@ -27,32 +27,23 @@ class GeckoBot {
 
   async startGeckoBot() {
     try {
-      this.bot.onText(/\Hermanto Kovalsky/, (msg: any, match: any) => {
+      this.bot.onText(/\Hermanto Kovalsky/, (msg: any) => {
         const chatId = msg.chat.id;
         this.users.push(chatId);
-        console.log({
-          event: "user",
-          status: "done",
-          message: `User registered in Coin Gecko Bot ${JSON.stringify(
+        console.log({event: "user", status: "done", message: `User registered in Coin Gecko Bot ${JSON.stringify(
             msg.chat
           )}`,
         });
         this.bot.sendMessage(chatId, "Зарегался, жди апдейта.");
       });
-      console.log({event: "bot init", status: "done", message: "Gecko Bot initialized",
-      });
+      console.log({event: "bot init", status: "done", message: "Gecko Bot initialized",});
     } catch (e) {
-      console.error({event: "bot init", status: "failed", message: "Gecko Bot initialisation failed",
-      });
+      console.error({event: "bot init", status: "failed", message: "Gecko Bot initialisation failed",});
     }
     setInterval(async () => {
       try {
         if (!this.users.length) {
-          console.error({
-            event: "user",
-            status: "failed",
-            message: "No one registered in Gecko Bot",
-          });
+          console.error({event: "user", status: "failed", message: "No one registered in Gecko Bot",});
           return;
         }
         const newCoins = await this.getNewCoins();
@@ -101,7 +92,7 @@ class GeckoBot {
     }
   }
 
-  private async getCoinInfo(coinId: any) {
+  private async getCoinInfo(coinId: any): Promise<any> {
     try {
       const data = (
         await axios(`https://api.coingecko.com/api/v3/coins/${coinId}`)

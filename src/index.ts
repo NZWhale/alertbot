@@ -1,6 +1,6 @@
 
-import GeckoBot from "./src/geckobot";
-import CoinCapBot from "./src/coincapbot";
+import GeckoBot from "./bots/geckobot";
+import CoinCapBot from "./bots/coincapbot";
 
 const botInit = async () => {
   const geckoBot = await GeckoBot.asyncBuild();

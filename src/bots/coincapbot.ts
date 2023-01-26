@@ -1,8 +1,8 @@
 import  config from "../config";
-import TelegramBot from "node-telegram-bot-api";
+import TelegramBot = require("node-telegram-bot-api");
+import _ = require("lodash");
 import { isArrayOfCoinsUpdated } from "./utils";
 import "reflect-metadata";
-import _ from "lodash";
 import axios from "axios";
 
 class CoinCapBot {
@@ -33,19 +33,19 @@ class CoinCapBot {
 
   async startCoinCapBot() {
     try {
-      this.bot.onText(/\Hermanto Kovalsky/, (msg: any, match: any) => {
+      this.bot.onText(/\Hermanto Kovalsky/, (msg: any) => {
         const chatId = msg.chat.id;
         this.users.push(chatId);
         console.log({event: "user", status: "done", message: `User registered in Coin Market Cap Bot ${JSON.stringify(msg.chat)}`,});
         this.bot.sendMessage(chatId, "Зарегался, жди апдейта.");
       });
-      console.log({event: "bot init", status: "done", message: "Coin Market Cap Bot initialized",});
+      console.log({event: "bot init", status: "done", message: "Coin Market Cap Bot initialized"});
     } catch (e) {
-      console.error({event: "bot init", status: "info", message: "Coin Market Cap Bot initialisation failed",});
+      console.error({event: "bot init", status: "info", message: "Coin Market Cap Bot initialisation failed"});
     }
     setInterval(async () => {
       if (!this.users.length) {
-        console.error({event: "user", status: "info", message: "No one registered in coin market cap bot",});
+        console.error({event: "user", status: "info", message: "No one registered in coin market cap bot"});
         return;
       }
       const newCoins = await this.getNewCoins();
@@ -68,7 +68,7 @@ class CoinCapBot {
         updatedCoinsList.data,
         this.coinsList
       );
-      console.log(`COINCAP ${updatedCoinsList.length}, ${this.coinsList.length}`)
+      console.log(`COINCAP ${updatedCoinsList.data.length}, ${this.coinsList.length}`)
       if (!isDifferent) {
         throw new Error("No new coins on coin market cap yet ")
       }
@@ -90,16 +90,16 @@ class CoinCapBot {
           },
         })
       ).data as Record<any, any>;
-      console.log({event: "coins", status: "done", message: "coins list received from coin market cap",});
+      console.log({event: "coins", status: "done", message: "coins list received from coin market cap"});
       return data;
     } catch (e) {
-      console.error({event: "coins", status: "failed", message: "coins list request from coin market cap failed",});
+      console.error({event: "coins", status: "failed", message: "coins list request from coin market cap failed"});
     }
   }
 
 
 
-  private async getCoinInfo(coinId: any) {
+  private async getCoinInfo(coinId: any): Promise<any> {
     try {
       const data = (
         await axios(
@@ -111,10 +111,10 @@ class CoinCapBot {
           }
         )
       ).data as CoinInfo;
-      console.log({event: "coin info", status: "done", message: "coin's info received",});
+      console.log({event: "coin info", status: "done", message: "coin's info received"});
       return data.data;
     } catch (e) {
-      console.error({event: "coin info", status: "failed", message: "coin's info request failed",});
+      console.error({event: "coin info", status: "failed", message: "coin's info request failed"});
     }
   }
 

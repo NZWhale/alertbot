@@ -1,8 +1,8 @@
-import { coinsListUrl, whagnal_bot } from "../config";
-import TelegramBot = require("node-telegram-bot-api");
+import  config from "../config";
+import TelegramBot from "node-telegram-bot-api";
 import { isArrayOfCoinsUpdated } from "./utils";
 import "reflect-metadata";
-import _ = require("lodash");
+import _ from "lodash";
 import axios from "axios";
 
 class GeckoBot {
@@ -14,13 +14,13 @@ class GeckoBot {
     if (typeof coins === "undefined") {
       throw new Error("Cannot be called directly");
     }
-    this.bot = new TelegramBot(whagnal_bot, { polling: true });
+    this.bot = new TelegramBot(config.whagnal_bot, { polling: true });
     this.coinsList = coins;
-    this.users = ['1376545645'];
+    this.users = config.users;
   }
 
   static asyncBuild() {
-    return axios(coinsListUrl).then((res: any) => {
+    return axios(config.coinsListUrl).then((res: any) => {
       return new GeckoBot(res.data);
     });
   }
@@ -39,16 +39,10 @@ class GeckoBot {
         });
         this.bot.sendMessage(chatId, "Зарегался, жди апдейта.");
       });
-      console.log({
-        event: "bot init",
-        status: "done",
-        message: "Gecko Bot initialized",
+      console.log({event: "bot init", status: "done", message: "Gecko Bot initialized",
       });
     } catch (e) {
-      console.error({
-        event: "bot init",
-        status: "failed",
-        message: "Gecko Bot initialisation failed",
+      console.error({event: "bot init", status: "failed", message: "Gecko Bot initialisation failed",
       });
     }
     setInterval(async () => {
@@ -68,7 +62,7 @@ class GeckoBot {
         for (let i = 0; i < this.users.length; i++) {
           await this.sendMessage(this.users[i], newCoins);
         }
-      } catch (e) {}
+      } catch (e) { }
     }, 60000);
   }
 
@@ -82,42 +76,28 @@ class GeckoBot {
         updatedCoinsList,
         this.coinsList
       );
-      console.log(updatedCoinsList.length, this.coinsList.length)
+      console.log(`COINGECKO ${updatedCoinsList.length}, ${this.coinsList.length}`)
       if (!isDifferent) {
         throw new Error("No new coins yet on coin gecko");
       }
       const newCoins = _.differenceBy(updatedCoinsList, this.coinsList, "id");
-      console.log({
-        event: "new coins",
-        status: "done",
-        message: `found new coins: ${newCoins}, on coin gecko`,
+      console.log({event: "new coins", status: "done", message: `found new coins: ${newCoins}, on coin gecko`,
       });
       this.coinsList = updatedCoinsList;
       return newCoins;
     } catch (e: any) {
-      console.error({
-        event: "new coins",
-        status: "failed",
-        message: e.message,
+      console.error({event: "new coins", status: "failed", message: e.message,
       });
     }
   }
 
   private async getCoinsList(): Promise<Array<Record<any, any>> | void> {
     try {
-      const data = (await axios(coinsListUrl)).data as Array<Record<any, any>>;
-      console.log({
-        event: "coins",
-        status: "done",
-        message: "coins list received from Coin Gecko",
-      });
+      const data = (await axios(config.coinsListUrl)).data as Array<Record<any, any>>;
+      console.log({ event: "coins", status: "done", message: "coins list received from Coin Gecko",});
       return data;
     } catch (e) {
-      console.error({
-        event: "coins",
-        status: "failed",
-        message: "coins list request from Coin Gecko failed",
-      });
+      console.error({event: "coins", status: "failed", message: "coins list request from Coin Gecko failed",});
     }
   }
 
@@ -126,18 +106,10 @@ class GeckoBot {
       const data = (
         await axios(`https://api.coingecko.com/api/v3/coins/${coinId}`)
       ).data as CoinInfo;
-      console.log({
-        event: "coin info",
-        status: "done",
-        message: "coin's info received",
-      });
+      console.log({event: "coin info", status: "done", message: "coin's info received",});
       return data;
     } catch (e) {
-      console.error({
-        event: "coin info",
-        status: "failed",
-        message: "coin's info request failed",
-      });
+      console.error({event: "coin info", status: "failed", message: "coin's info request failed",});
     }
   }
 
@@ -149,9 +121,9 @@ class GeckoBot {
           throw new Error("info request failed");
         }
         const message = `<pre>🦎🦎🦎
-Name: ${coinInfo.name}
-Link: ${coinInfo.links.homepage}
-</pre>`;
+                          Name: ${coinInfo.name}
+                          Link: ${coinInfo.links.homepage}
+                        </pre>`;
         await this.bot.sendMessage(user, message, { parse_mode: "HTML" });
         console.log({ event: "message", status: "done", message });
       }

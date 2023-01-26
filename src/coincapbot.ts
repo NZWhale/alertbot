@@ -19,7 +19,7 @@ class CoinCapBot {
     this.users = config.users
   }
 
-  static asyncBuild() {
+  static async asyncBuild() {
     return axios
       .get(config.coinCapNewList, {
         headers: {

@@ -19,7 +19,7 @@ class GeckoBot {
     this.users = config.users;
   }
 
-  static asyncBuild() {
+  static async asyncBuild() {
     return axios(config.coinsListUrl).then((res: any) => {
       return new GeckoBot(res.data);
     });

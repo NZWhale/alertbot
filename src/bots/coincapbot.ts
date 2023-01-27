@@ -130,17 +130,19 @@ class CoinCapBot {
         let name = coinInfo[coins[i].id].name
         let website = coinInfo[coins[i].id].urls.website
         if (Array.isArray(website)) {
-          website = website.map(el => el + "," + " ")
+          website = website.reduce((prev, curr) => prev+`<a href="${curr}">${curr}</a>\n`, '')
         } else {
-          website = website[0]
+          website = `<a href="${website[0]}">${website[0]}</a>`
         }
         if (!coinInfo) {
           throw new Error("info request failed");
         }
-        const message = `<pre>
-                          Name: ${name}
-                          Link: ${website}
-                         </pre>`;
+        const message = 
+`<pre>
+Name: ${name}
+Links: 
+${website}
+</pre>`;
         await this.bot.sendMessage(user, message, { parse_mode: "HTML" });
         console.log({ event: "message", status: "done", message });
       }

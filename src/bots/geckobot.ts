@@ -111,10 +111,11 @@ class GeckoBot {
         if (!coinInfo) {
           throw new Error("info request failed");
         }
-        const message = `<pre>🦎🦎🦎
-                          Name: ${coinInfo.name}
-                          Link: ${coinInfo.links.homepage}
-                        </pre>`;
+        const message = 
+`<pre>🦎🦎🦎
+Name: ${coinInfo.name}
+Link: ${coinInfo.links.homepage}
+</pre>`;
         await this.bot.sendMessage(user, message, { parse_mode: "HTML" });
         console.log({ event: "message", status: "done", message });
       }

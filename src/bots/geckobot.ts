@@ -111,10 +111,17 @@ class GeckoBot {
         if (!coinInfo) {
           throw new Error("info request failed");
         }
+        let website = coinInfo.links.homepage
+        if (Array.isArray(website)) {
+          website = website.reduce((prev, curr) => prev+`<a href="${curr}">${curr}</a>\n`, '')
+        } else {
+          website = `<a href="${website[0]}">${website[0]}</a>`
+        }
         const message = 
 `<pre>🦎🦎🦎
 Name: ${coinInfo.name}
-Link: ${coinInfo.links.homepage}
+Link: 
+${coinInfo.links.homepage}
 </pre>`;
         await this.bot.sendMessage(user, message, { parse_mode: "HTML" });
         console.log({ event: "message", status: "done", message });

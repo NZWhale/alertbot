@@ -1,4 +1,4 @@
-import  config from "../config";
+import config from "../config";
 import TelegramBot = require("node-telegram-bot-api");
 import _ = require("lodash");
 import { isArrayOfCoinsUpdated } from "./utils";
@@ -23,7 +23,7 @@ class CoinCapBot {
     return axios
       .get(config.coinCapNewList, {
         headers: {
-          "X-CMC_PRO_API_KEY": "585a162a-2517-4b7f-81a4-74b043a910b2",
+          "X-CMC_PRO_API_KEY": "3a46d277-b6e3-4f5d-9656-efd9c2d1919d",
         },
       })
       .then((res: any) => {
@@ -36,26 +36,29 @@ class CoinCapBot {
       this.bot.onText(/\Hermanto Kovalsky/, (msg: any) => {
         const chatId = msg.chat.id;
         this.users.push(chatId);
-        console.log({event: "user", status: "done", message: `User registered in Coin Market Cap Bot ${JSON.stringify(msg.chat)}`,});
+        console.log({ event: "user", status: "done", message: `User registered in Coin Market Cap Bot ${JSON.stringify(msg.chat)}`, });
         this.bot.sendMessage(chatId, "Зарегался, жди апдейта.");
       });
-      console.log({event: "bot init", status: "done", message: "Coin Market Cap Bot initialized"});
+      console.log({ event: "bot init", status: "done", message: "Coin Market Cap Bot initialized" });
     } catch (e) {
-      console.error({event: "bot init", status: "info", message: "Coin Market Cap Bot initialisation failed"});
+      console.error({ event: "bot init", status: "info", message: "Coin Market Cap Bot initialisation failed" });
     }
+    await this.sendMessage(this.users[0], this.coinsList);
     setInterval(async () => {
-      if (!this.users.length) {
-        console.error({event: "user", status: "info", message: "No one registered in coin market cap bot"});
-        return;
-      }
-      const newCoins = await this.getNewCoins();
-      if (!newCoins) {
-        return;
-      }
-      for (let i = 0; i < this.users.length; i++) {
-        await this.sendMessage(this.users[i], newCoins);
-      }
-    }, 10000);
+      setTimeout(async () => {
+        if (!this.users.length) {
+          console.error({ event: "user", status: "info", message: "No one registered in coin market cap bot" });
+          return;
+        }
+        const newCoins = await this.getNewCoins();
+        if (!newCoins) {
+          return;
+        }
+        for (let i = 0; i < this.users.length; i++) {
+          await this.sendMessage(this.users[i], newCoins);
+        }
+      }, 4000)
+    }, 280000);
   }
 
   private async getNewCoins(): Promise<void | Array<Record<any, any>>> {
@@ -73,11 +76,11 @@ class CoinCapBot {
         throw new Error("No new coins on coin market cap yet ")
       }
       const newCoins = _.differenceBy(updatedCoinsList.data, this.coinsList, "id");
-      console.log({event: "new coins", status: "done", message: `found new coins: ${newCoins}, on coin market cap`,});
+      console.log({ event: "new coins", status: "done", message: `found new coins: ${newCoins}, on coin market cap`, });
       this.coinsList = updatedCoinsList.data;
       return newCoins;
     } catch (e: any) {
-      console.error({event: "new coins", status: "failed", message: e.message,});
+      console.error({ event: "new coins", status: "failed", message: e.message, });
     }
   }
 
@@ -90,10 +93,10 @@ class CoinCapBot {
           },
         })
       ).data as Record<any, any>;
-      console.log({event: "coins", status: "done", message: "coins list received from coin market cap"});
+      console.log({ event: "coins", status: "done", message: "coins list received from coin market cap" });
       return data;
     } catch (e) {
-      console.error({event: "coins", status: "failed", message: "coins list request from coin market cap failed"});
+      console.error({ event: "coins", status: "failed", message: "coins list request from coin market cap failed" });
     }
   }
 
@@ -111,10 +114,10 @@ class CoinCapBot {
           }
         )
       ).data as CoinInfo;
-      console.log({event: "coin info", status: "done", message: "coin's info received"});
+      console.log({ event: "coin info", status: "done", message: "coin's info received" });
       return data.data;
     } catch (e) {
-      console.error({event: "coin info", status: "failed", message: "coin's info request failed"});
+      console.error({ event: "coin info", status: "failed", message: "coin's info request failed" });
     }
   }
 
@@ -130,14 +133,14 @@ class CoinCapBot {
         let name = coinInfo[coins[i].id].name
         let website = coinInfo[coins[i].id].urls.website
         if (Array.isArray(website)) {
-          website = website.reduce((prev, curr) => prev+`<a href="${curr}">${curr}</a>\n`, '')
+          website = website.reduce((prev, curr) => prev + `<a href="${curr}">${curr}</a>\n`, '')
         } else {
-          website = `<a href="${website[0]}">${website[0]}</a>`
+          website = website.replace(',', ' ').split(',').reduce((prev: string, curr: string) => prev + `<a href="${curr}">${curr}</a>\n`, '')
         }
         if (!coinInfo) {
           throw new Error("info request failed");
         }
-        const message = 
+        const message =
 `<pre>
 Name: ${name}
 Links: 
@@ -154,7 +157,7 @@ ${website}
 
 }
 
-interface CoinInfo { 
+interface CoinInfo {
   status: Record<any, any>
   data: Record<any, any>
 }

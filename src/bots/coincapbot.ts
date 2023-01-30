@@ -43,7 +43,6 @@ class CoinCapBot {
     } catch (e) {
       console.error({ event: "bot init", status: "info", message: "Coin Market Cap Bot initialisation failed" });
     }
-    await this.sendMessage(this.users[0], this.coinsList);
     setInterval(async () => {
       setTimeout(async () => {
         if (!this.users.length) {
@@ -89,7 +88,7 @@ class CoinCapBot {
       const data = (
         await axios.get(config.coinCapNewList, {
           headers: {
-            "X-CMC_PRO_API_KEY": "585a162a-2517-4b7f-81a4-74b043a910b2",
+            "X-CMC_PRO_API_KEY": "3a46d277-b6e3-4f5d-9656-efd9c2d1919d",
           },
         })
       ).data as Record<any, any>;
@@ -109,7 +108,7 @@ class CoinCapBot {
           `https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?id=${coinId}`,
           {
             headers: {
-              "X-CMC_PRO_API_KEY": "585a162a-2517-4b7f-81a4-74b043a910b2",
+              "X-CMC_PRO_API_KEY": "3a46d277-b6e3-4f5d-9656-efd9c2d1919d",
             },
           }
         )
@@ -141,11 +140,9 @@ class CoinCapBot {
           throw new Error("info request failed");
         }
         const message =
-`<pre>
-Name: ${name}
+`Name: ${name}
 Links: 
-${website}
-</pre>`;
+${website}`;
         await this.bot.sendMessage(user, message, { parse_mode: "HTML" });
         console.log({ event: "message", status: "done", message });
       }

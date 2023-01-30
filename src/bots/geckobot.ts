@@ -115,14 +115,14 @@ class GeckoBot {
         if (Array.isArray(website)) {
           website = website.reduce((prev, curr) => prev+`<a href="${curr}">${curr}</a>\n`, '')
         } else {
-          website = `<a href="${website[0]}">${website[0]}</a>`
+          website = website.replace(',', ' ').split(',').reduce((prev: string, curr: string) => prev + `<a href="${curr}">${curr}</a>\n`, '')
         }
         const message = 
-`<pre>🦎🦎🦎
+`🦎🦎🦎
 Name: ${coinInfo.name}
 Link: 
 ${coinInfo.links.homepage}
-</pre>`;
+`;
         await this.bot.sendMessage(user, message, { parse_mode: "HTML" });
         console.log({ event: "message", status: "done", message });
       }

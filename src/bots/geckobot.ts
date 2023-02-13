@@ -1,4 +1,4 @@
-import  config from "../config";
+import {config} from "../config";
 import TelegramBot = require("node-telegram-bot-api");
 import _ = require("lodash");
 import { isArrayOfCoinsUpdated } from "./utils";
@@ -14,13 +14,13 @@ class GeckoBot {
     if (typeof coins === "undefined") {
       throw new Error("Cannot be called directly");
     }
-    this.bot = new TelegramBot(config.whagnal_bot, { polling: true });
+    this.bot = new TelegramBot(config().whagnal_bot, { polling: true });
     this.coinsList = coins;
-    this.users = config.users;
+    this.users = config().users;
   }
 
   static async asyncBuild() {
-    return axios(config.coinsListUrl).then((res: any) => {
+    return axios(config().coinsListUrl).then((res: any) => {
       return new GeckoBot(res.data);
     });
   }
@@ -84,7 +84,7 @@ class GeckoBot {
 
   private async getCoinsList(): Promise<Array<Record<any, any>> | void> {
     try {
-      const data = (await axios(config.coinsListUrl)).data as Array<Record<any, any>>;
+      const data = (await axios(config().coinsListUrl)).data as Array<Record<any, any>>;
       console.log({ event: "coins", status: "done", message: "coins list received from Coin Gecko",});
       return data;
     } catch (e) {

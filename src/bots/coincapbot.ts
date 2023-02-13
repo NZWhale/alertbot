@@ -1,4 +1,4 @@
-import config from "../config";
+import {config} from "../config";
 import TelegramBot = require("node-telegram-bot-api");
 import _ = require("lodash");
 import { isArrayOfCoinsUpdated } from "./utils";
@@ -14,14 +14,14 @@ class CoinCapBot {
     if (typeof coins === "undefined") {
       throw new Error("Cannot be called directly");
     }
-    this.bot = new TelegramBot(config.whadar_bot, { polling: true });
+    this.bot = new TelegramBot(config().whadar_bot, { polling: true });
     this.coinsList = coins;
-    this.users = config.users
+    this.users = config().users
   }
 
   static async asyncBuild() {
     return axios
-      .get(config.coinCapNewList, {
+      .get(config().coinCapNewList, {
         headers: {
           "X-CMC_PRO_API_KEY": "3a46d277-b6e3-4f5d-9656-efd9c2d1919d",
         },
@@ -86,7 +86,7 @@ class CoinCapBot {
   private async getCoinsList(): Promise<Record<any, any> | void> {
     try {
       const data = (
-        await axios.get(config.coinCapNewList, {
+        await axios.get(config().coinCapNewList, {
           headers: {
             "X-CMC_PRO_API_KEY": "3a46d277-b6e3-4f5d-9656-efd9c2d1919d",
           },

@@ -23,7 +23,7 @@ export class CoinGeckoNotifier extends EventEmitter {
     await this.fetchCoins();
     console.log('Coins fetched and saved.');
     this.emit('initialized', this.coins);
-    setInterval(() => this.checkForUpdates(), 10000); // Every 5 minutes
+    setInterval(() => this.checkForUpdates(),  60000); // Every 5 minutes
   }
 
   async fetchCoins(): Promise<void> {
@@ -36,8 +36,8 @@ export class CoinGeckoNotifier extends EventEmitter {
         return data;
       }, {});
       console.log('Coins fetched successfully.');
-    } catch (error) {
-      console.error('Failed to fetch coins:', error);
+    } catch (error: any) {
+      console.error('Failed to fetch coins:', error.message);
     }
   }
 
@@ -50,7 +50,8 @@ export class CoinGeckoNotifier extends EventEmitter {
 
       for (const coin of updatedCoins) {
         if (!this.coins[coin.id]) {
-          newCoins.push(coin);
+          const newCoin = await this.getCoinInfo(coin.id)
+          newCoins.push(newCoin);
           this.coins[coin.id] = coin;
         }
       }
@@ -61,9 +62,23 @@ export class CoinGeckoNotifier extends EventEmitter {
       } else {
         console.log('No new coins detected.');
       }
-    } catch (error) {
-      console.error('Failed to check for updates:', error);
+    } catch (error:any) {
+      console.error('Failed to check for updates:', error.message);
+    }
+  }
+
+  private async getCoinInfo(coinId: any): Promise<any> {
+    try {
+      const data = (
+        await axios(`https://api.coingecko.com/api/v3/coins/${coinId}`)
+      ).data;
+      console.log({event: "coin info", status: "done", message: "coin's info received",});
+      return data;
+    } catch (e) {
+      console.error({event: "coin info", status: "failed", message: "coin's info request failed",});
     }
   }
 }
+
+
 

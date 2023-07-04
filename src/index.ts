@@ -1,4 +1,4 @@
-import { TelegramBot } from "./bots/Bot";
+import { Bot } from "./bots/Bot";
 import sqlite3 from 'sqlite3';
 import { Coin, CoinData, CoinGeckoNotifier } from "./watcher/GeckoWatcher";
 import { CoinCapNotifier } from "./watcher/CoinCapWatcher";
@@ -16,7 +16,7 @@ const botInit = async () => {
   )`);
   });
 
-  const bot = new TelegramBot(db);
+  const bot = new Bot();
   bot.start();
 
   // Usage:
@@ -28,7 +28,7 @@ const botInit = async () => {
 
   geckoNotifier.on('newCoins', (newCoins: Coin[]) => {
     console.log('New coins detected on coin gecko:', newCoins);
-    bot.sendNewCoinNotification(newCoins)
+    bot.sendNewCoinNotification(newCoins, 'gecko')
   });
 
   geckoNotifier.initialize();
@@ -39,10 +39,10 @@ const botInit = async () => {
 
   coinCapNotifier.on('newCoins', (newCoins: Coin[]) => {
     console.log('New coins detected on coin cap:', newCoins);
-    bot.sendNewCoinNotification(newCoins)
+    bot.sendNewCoinNotification(newCoins, 'coincap')
   });
 
-  coinCapNotifier.startPolling(5000); // Poll every 5 minutes (300,000 milliseconds)
+  coinCapNotifier.startPolling(10000); // Poll every 5 minutes (300,000 milliseconds)
 
 
 };

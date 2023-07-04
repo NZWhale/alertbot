@@ -7,3 +7,7 @@ export function config() {
         users: []
     }
 }
+
+// Your Api Key is Ready!
+// Your key: 9c0225a8-8581-478c-887d-e13b63c2fe95
+// Expires on 7/3/2034

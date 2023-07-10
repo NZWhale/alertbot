@@ -1,9 +1,15 @@
 {
   "extends": "./tsconfig-base",
   "compilerOptions": {
-    "outDir": "./dist"
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
-  "include": [
-    "./src"
+  "exclude": [
+    "node_modules",
+    "typings/telegraf" // Exclude the telegraf typings directory
   ]
 }

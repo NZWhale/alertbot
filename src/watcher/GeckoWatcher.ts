@@ -7,7 +7,7 @@ export interface Coin {
   symbol: string;
 }
 
-export interface CoinData {
+interface CoinData {
   [coinId: string]: Coin;
 }
 
@@ -23,27 +23,27 @@ export class CoinGeckoNotifier extends EventEmitter {
     await this.fetchCoins();
     console.log('Coins fetched and saved.');
     this.emit('initialized', this.coins);
-    setInterval(() => this.checkForUpdates(),  60000); // Every 5 minutes
+    setInterval(() => this.checkForUpdates(), 60000); // Every 5 minutes
   }
 
   async fetchCoins(): Promise<void> {
     try {
-      console.log('Fetching coins from the CoinGecko API...');
+      console.log(`[${new Date().toISOString()}] Fetching coins from the CoinGecko API...`);
       const response = await axios.get('https://api.coingecko.com/api/v3/coins/list');
       const coins = response.data as Coin[];
       this.coins = coins.reduce((data: CoinData, coin: Coin) => {
         data[coin.id] = coin;
         return data;
       }, {});
-      console.log('Coins fetched successfully.');
+      console.log(`[${new Date().toISOString()}] Coins fetched successfully from coin gecko.`);
     } catch (error: any) {
-      console.error('Failed to fetch coins:', error.message);
+      console.error(`[${new Date().toISOString()}] Failed to fetch coins from coin gecko:`, error.message);
     }
   }
 
   async checkForUpdates(): Promise<void> {
     try {
-      console.log('Checking for updates from the CoinGecko API...');
+      console.log(`[${new Date().toISOString()}] Checking for updates from the CoinGecko API...`);
       const response = await axios.get('https://api.coingecko.com/api/v3/coins/list');
       const updatedCoins = response.data as Coin[];
       const newCoins: Coin[] = [];
@@ -57,13 +57,13 @@ export class CoinGeckoNotifier extends EventEmitter {
       }
 
       if (newCoins.length > 0) {
-        console.log('New coins detected:', newCoins);
+        console.log(`[${new Date().toISOString()}] New coins detected on coin gecko:`, newCoins);
         this.emit('newCoins', newCoins);
       } else {
-        console.log('No new coins detected.');
+        console.log(`[${new Date().toISOString()}] No new coins detected on coin gecko.`);
       }
-    } catch (error:any) {
-      console.error('Failed to check for updates:', error.message);
+    } catch (error: any) {
+      console.error(`[${new Date().toISOString()}] Failed to check for updates on coin gecko:`, error.message);
     }
   }
 
@@ -72,10 +72,10 @@ export class CoinGeckoNotifier extends EventEmitter {
       const data = (
         await axios(`https://api.coingecko.com/api/v3/coins/${coinId}`)
       ).data;
-      console.log({event: "coin info", status: "done", message: "coin's info received",});
+      console.log(`[${new Date().toISOString()}]`, { event: "coin info", status: "done", message: "coin's info received", });
       return data;
     } catch (e) {
-      console.error({event: "coin info", status: "failed", message: "coin's info request failed",});
+      console.error(`[${new Date().toISOString()}]`, { event: "coin info", status: "failed", message: "coin's info request failed", });
     }
   }
 }

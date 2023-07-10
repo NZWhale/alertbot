@@ -10,7 +10,7 @@ export class Bot {
 
     constructor() {
         const { Telegraf } = require('telegraf');
-        this.bot = new Telegraf('botid');
+        this.bot = new Telegraf('5273214627:AAGduFH-pLafVyDWR-1oJyszNpDx4DF-zxc');
         this.bot.start(this.handleStart.bind(this));
     }
 

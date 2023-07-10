@@ -1,6 +1,6 @@
 import { Bot } from "./bots/Bot";
 import sqlite3 from 'sqlite3';
-import { Coin, CoinData, CoinGeckoNotifier } from "./watcher/GeckoWatcher";
+import { Coin, CoinGeckoNotifier } from "./watcher/GeckoWatcher";
 import { CoinCapNotifier } from "./watcher/CoinCapWatcher";
 
 
@@ -22,7 +22,7 @@ const botInit = async () => {
   // Usage:
   const geckoNotifier = new CoinGeckoNotifier();
 
-  geckoNotifier.on('initialized', (coins: CoinData) => {
+  geckoNotifier.on('initialized', (coins: any) => {
     console.log('Initialized with coins:', coins);
   });
 
@@ -42,7 +42,7 @@ const botInit = async () => {
     bot.sendNewCoinNotification(newCoins, 'coincap')
   });
 
-  coinCapNotifier.startPolling(87008); // Poll every 5 minutes (300,000 milliseconds)
+  coinCapNotifier.initialize(87008); // Poll every 5 minutes (300,000 milliseconds)
 
 
 };

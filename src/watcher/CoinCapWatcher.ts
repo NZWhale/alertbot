@@ -1,111 +1,153 @@
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import EventEmitter from 'events';
 
-
-
 interface Coin {
-    id: string;
-    rank: string;
-    symbol: string;
-    name: string;
-    supply: string;
-    maxSupply: string | null;
-    marketCapUsd: string;
-    volumeUsd24Hr: string;
-    priceUsd: string;
-    changePercent24Hr: string;
-    vwap24Hr: string;
+    id: number,
+    rank: number,
+    name: string,
+    symbol: string,
+    slug: string,
+    is_active: number,
+    first_historical_data: string,
+    last_historical_data: string,
+    platform: string | null
 }
 
+// interface Coin {
+//     id: string;
+//     rank: string;
+//     symbol: string;
+//     name: string;
+//     supply: string;
+//     maxSupply: string | null;
+//     marketCapUsd: string;
+//     volumeUsd24Hr: string;
+//     priceUsd: string;
+//     changePercent24Hr: string;
+//     vwap24Hr: string;
+// }
+
 interface CoinInfo {
-    id: string;
-    rank: string;
-    symbol: string;
+    id: number;
     name: string;
-    supply: string;
-    maxSupply: string | null;
-    marketCapUsd: string;
-    volumeUsd24Hr: string;
-    priceUsd: string;
-    changePercent24Hr: string;
-    vwap24Hr: string;
-    // Add any additional properties specific to the coin info
+    symbol: string;
+    category: string;
+    description: string;
+    slug: string;
+    logo: string;
+    subreddit: string;
+    notice: string;
+    tags: string[];
+    tagNames: string[];
+    tagGroups: string[];
+    urls: {
+        website: string[];
+        twitter: string[];
+        messageBoard: string[];
+        chat: string[];
+        facebook: string[];
+        explorer: string[];
+        reddit: string[];
+        technicalDoc: string[];
+        sourceCode: string[];
+        announcement: string[];
+    };
+    platform: null;
+    dateAdded: string;
+    twitterUsername: string;
+    isHidden: number;
+    dateLaunched: string;
+    contractAddress: any[];
+    selfReportedCirculatingSupply: null;
+    selfReportedTags: null;
+    selfReportedMarketCap: null;
+    infiniteSupply: boolean;
+}
+interface CoinData {
+    [coinId: string]: Coin;
 }
 
 
 export class CoinCapNotifier extends EventEmitter {
-    private currentCoins: string[] = [];
+    private coins: CoinData = {};
 
-    public async startPolling(interval: number): Promise<void> {
+    constructor() {
+        super();
+    }
+
+    async initialize(timeout: number): Promise<void> {
         console.log('Initializing CoinCapNotifier...');
-
-        try {
-            this.currentCoins = await this.fetchCoins();
-
-            setInterval(async () => {
-                try {
-                    const coins = await this.fetchCoins();
-                    this.compareCoins(coins);
-                    this.currentCoins = coins;
-                } catch (error: any) {
-                    console.error('Error fetching coins:', error.message);
-                }
-            }, interval);
-
-            console.log('CoinCapNotifier started successfully.');
-        } catch (error: any) {
-            console.error('Failed to initialize CoinCapNotifier:', error.message);
-        }
+        await this.fetchCoins();
+        console.log('Coins fetched and saved.');
+        this.emit('initialized', this.coins);
+        setInterval(() => this.checkForUpdates(), timeout); // Every 5 minutes
     }
 
-    private async fetchCoins(): Promise<string[]> {
-        console.log('Fetching coins...');
-
+    async fetchCoins(): Promise<void> {
         try {
+            console.log('Fetching coins from the CoinGecko API...');
             const headers = {
-                'X-CMC_PRO_API_KEY': 'apikey', // Replace YOUR_API_KEY with your actual API key
+                'X-CMC_PRO_API_KEY': '11aee9f9-61fa-4e96-894f-fd4f9e9eb717', // Replace YOUR_API_KEY with your actual API key
             };
-
-            const response: AxiosResponse<{ data: Coin[] }> = await axios.get(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/map`, {
-                headers,
-            });
-
-            const coins: string[] = response.data.data.map((coin) => coin.id);
-            console.log('Coins from coic cap fetched successfully.');
-            return coins;
+            const response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/map', { headers });
+            const coins = response.data as {status: any, data: Coin[]};
+            this.coins = coins.data.reduce((data: CoinData, coin: Coin) => {
+                data[coin.id] = coin;
+                return data;
+            }, {});
+            console.log(`[${new Date().toISOString()}] Coins fetched successfully from coin cap.`);
         } catch (error: any) {
-            console.error('Failed to fetch coins:', error.message);
-            throw error;
+            console.error(`[${new Date().toISOString()}] Failed to fetch coins from coin cap:`, error.message);
         }
     }
 
+    async checkForUpdates(): Promise<void> {
+        try {
+            console.log('Checking for updates from the CoinCap API...');
+            const headers = {
+                'X-CMC_PRO_API_KEY': '11aee9f9-61fa-4e96-894f-fd4f9e9eb717', // Replace YOUR_API_KEY with your actual API key
+            };
+            const response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/map', { headers });
+            const updatedCoins = response.data as Coin[];
+            const newCoins: CoinInfo[] = [];
 
-    private async compareCoins(updatedCoins: string[]): Promise<void> {
-        const newCoins = updatedCoins.filter((coin) => !this.currentCoins.includes(coin));
-
-        if (newCoins.length > 0) {
-            for (const coin of newCoins) {
-                try {
-                    const response: AxiosResponse<{ data: CoinInfo }> = await axios.get(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?id=${coin}`, {
-                        headers: {
-                            'X-CMC_PRO_API_KEY': 'apikey', // Replace YOUR_API_KEY with your actual API key
-                        },
-                    });
-                    const coinInfo: CoinInfo = response.data.data;
-                    console.log('Coin info:', coinInfo);
-                    this.emit('newCoins', coinInfo);
-                    // Perform actions with coin info
-                } catch (error: any) {
-                    console.error(`Failed to fetch information for coin ${coin}:`, error.message);
+            for (const coin of updatedCoins) {
+                if (!this.coins[coin.id]) {
+                    const newCoin = await this.getCoinInfo(coin.id)
+                    if (!newCoin) {
+                        continue
+                    }
+                    newCoins.push(newCoin);
+                    this.coins[coin.id] = coin;
                 }
             }
-        }
 
-        if (newCoins.length > 0) {
-            this.currentCoins = updatedCoins;
+            if (newCoins.length > 0) {
+                console.log(`[${new Date().toISOString()}] New coins detected on coin cap:`, newCoins);
+                this.emit('newCoins', newCoins);
+            } else {
+                console.log(`[${new Date().toISOString()}] No new coins detected on coin cap.`);
+            }
+        } catch (error: any) {
+            console.error(`[${new Date().toISOString()}] Failed to check for updates from coin cap:`, error.message);
         }
     }
 
+    private async getCoinInfo(coinId: any): Promise<CoinInfo | undefined> {
+        try {
+            const headers = {
+                'X-CMC_PRO_API_KEY': '11aee9f9-61fa-4e96-894f-fd4f9e9eb717', // Replace YOUR_API_KEY with your actual API key
+            };
+            const data = (
+                await axios(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?id=${coinId}`, { headers })
+            ).data as unknown as CoinInfo;
+            console.log(`[${new Date().toISOString()}]`, { event: "coin info", status: "done", message: "coin's info received from coin cap", });
+            return data;
+        } catch (e) {
+            console.error(`[${new Date().toISOString()}]`, { event: "coin info", status: "failed", message: "coin's info request failed from coin cap", });
+            return
+        }
+    }
 
 }
 

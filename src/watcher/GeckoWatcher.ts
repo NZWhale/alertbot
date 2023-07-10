@@ -19,9 +19,9 @@ export class CoinGeckoNotifier extends EventEmitter {
   }
 
   async initialize(): Promise<void> {
-    console.log('Initializing CoinGeckoNotifier...');
+    console.log(`[${new Date().toISOString()}] Initializing CoinGeckoNotifier...`);
     await this.fetchCoins();
-    console.log('Coins fetched and saved.');
+    console.log(`[${new Date().toISOString()}] Coins fetched and saved.`);
     this.emit('initialized', this.coins);
     setInterval(() => this.checkForUpdates(), 60000); // Every 5 minutes
   }

@@ -76,16 +76,16 @@ export class CoinCapNotifier extends EventEmitter {
     }
 
     async initialize(timeout: number): Promise<void> {
-        console.log('Initializing CoinCapNotifier...');
+        console.log(`[${new Date().toISOString()}] Initializing CoinCapNotifier...`);
         await this.fetchCoins();
-        console.log('Coins fetched and saved.');
+        console.log(`[${new Date().toISOString()}] Coins fetched and saved.`);
         this.emit('initialized', this.coins);
         setInterval(() => this.checkForUpdates(), timeout); // Every 5 minutes
     }
 
     async fetchCoins(): Promise<void> {
         try {
-            console.log('Fetching coins from the CoinGecko API...');
+            console.log(`[${new Date().toISOString()}] Fetching coins from the CoinGecko API...`);
             const headers = {
                 'X-CMC_PRO_API_KEY': '11aee9f9-61fa-4e96-894f-fd4f9e9eb717', // Replace YOUR_API_KEY with your actual API key
             };
@@ -103,15 +103,15 @@ export class CoinCapNotifier extends EventEmitter {
 
     async checkForUpdates(): Promise<void> {
         try {
-            console.log('Checking for updates from the CoinCap API...');
+            console.log(`[${new Date().toISOString()}] Checking for updates from the CoinCap API...`);
             const headers = {
                 'X-CMC_PRO_API_KEY': '11aee9f9-61fa-4e96-894f-fd4f9e9eb717', // Replace YOUR_API_KEY with your actual API key
             };
-            const response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/map', { headers });
-            const updatedCoins = response.data as Coin[];
+            const response = (await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/map', { headers }));
+            const updatedCoins = response.data as {status: any, data: Coin[]};
             const newCoins: CoinInfo[] = [];
 
-            for (const coin of updatedCoins) {
+            for (const coin of updatedCoins.data) {
                 if (!this.coins[coin.id]) {
                     const newCoin = await this.getCoinInfo(coin.id)
                     if (!newCoin) {
@@ -142,6 +142,7 @@ export class CoinCapNotifier extends EventEmitter {
                 await axios(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?id=${coinId}`, { headers })
             ).data as unknown as CoinInfo;
             console.log(`[${new Date().toISOString()}]`, { event: "coin info", status: "done", message: "coin's info received from coin cap", });
+            console.log(data)
             return data;
         } catch (e) {
             console.error(`[${new Date().toISOString()}]`, { event: "coin info", status: "failed", message: "coin's info request failed from coin cap", });

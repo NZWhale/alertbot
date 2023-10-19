@@ -110,7 +110,10 @@ export class CoinCapNotifier extends EventEmitter {
             const response = (await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/map', { headers }));
             const updatedCoins = response.data as {status: any, data: Coin[]};
             const newCoins: CoinInfo[] = [];
-
+            if(response.status !== 200) {
+                console.log(`[${new Date().toISOString()}]`, { event: "coin info", status: "failed", message: "coin's info request failed from coin cap", coins: updatedCoins.data});
+                return
+            }
             for (const coin of updatedCoins.data) {
                 if (!this.coins[coin.id]) {
                     const newCoin = await this.getCoinInfo(coin.id)

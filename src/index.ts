@@ -42,7 +42,7 @@ const botInit = async () => {
     bot.sendNewCoinNotification(newCoins, 'coincap')
   });
 
-  coinCapNotifier.initialize(87008); // Poll every 5 minutes (300,000 milliseconds)
+  coinCapNotifier.initialize(600000); // Poll every 5 minutes (300,000 milliseconds)
 
 
 };

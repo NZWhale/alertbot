@@ -87,7 +87,7 @@ export class CoinCapNotifier extends EventEmitter {
         try {
             console.log(`[${new Date().toISOString()}] Fetching coins from the CoinGecko API...`);
             const headers = {
-                'X-CMC_PRO_API_KEY': '11aee9f9-61fa-4e96-894f-fd4f9e9eb717', // Replace YOUR_API_KEY with your actual API key
+                'X-CMC_PRO_API_KEY': '6fb62221-6f50-49c4-9af7-850e31249cc1', // Replace YOUR_API_KEY with your actual API key
             };
             const response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/map', { headers });
             const coins = response.data as {status: any, data: Coin[]};
@@ -105,7 +105,7 @@ export class CoinCapNotifier extends EventEmitter {
         try {
             console.log(`[${new Date().toISOString()}] Checking for updates from the CoinCap API...`);
             const headers = {
-                'X-CMC_PRO_API_KEY': '11aee9f9-61fa-4e96-894f-fd4f9e9eb717', // Replace YOUR_API_KEY with your actual API key
+                'X-CMC_PRO_API_KEY': '6fb62221-6f50-49c4-9af7-850e31249cc1', // Replace YOUR_API_KEY with your actual API key
             };
             const response = (await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/map', { headers }));
             const updatedCoins = response.data as {status: any, data: Coin[]};
@@ -139,7 +139,7 @@ export class CoinCapNotifier extends EventEmitter {
     private async getCoinInfo(coinId: any): Promise<CoinInfo | undefined> {
         try {
             const headers = {
-                'X-CMC_PRO_API_KEY': '11aee9f9-61fa-4e96-894f-fd4f9e9eb717', // Replace YOUR_API_KEY with your actual API key
+                'X-CMC_PRO_API_KEY': '6fb62221-6f50-49c4-9af7-850e31249cc1', // Replace YOUR_API_KEY with your actual API key
             };
             const data = (
                 await axios(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?id=${coinId}`, { headers })

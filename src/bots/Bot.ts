@@ -35,7 +35,8 @@ Link: ${coin.links.homepage}`;
                 }
                 if (exchange === 'coincap') {
                     let name = coin.name
-                    let website = coin.urls.website
+                    console.log(JSON.stringify(coin.urls))
+                    let website = coin.urls?.website
                     if (Array.isArray(website)) {
                         website = website.reduce((prev, curr) => prev + `<a href="${curr}">${curr}</a>\n`, '')
                     } else {
